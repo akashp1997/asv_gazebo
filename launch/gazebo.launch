@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- roslaunch arguments -->
+  <arg name="paused" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="world" default="$(find asv_gazebo)/worlds/pond.world"/>
+
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)"/>
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="use_sim_time" value="true" />
+    <arg name="headless" value="false" />
+  </include>
+
+   <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find asv_gazebo)/urdf/gazebo.xacro' --inorder" />
+
+  <!--Load the Joint Configuration File -->
+
+  <rosparam file="$(find asv_description)/config/asv_joints.yaml" command="load" />
+
+  <!--Load/Spawn the controllers in the Gazebo World-->
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/asv" args="left_thruster_controller right_thruster_controller joint_state_controller" />
+
+  <!--Joint And Robot State Publishers to give TF of all links-->
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+  <!--Spawn the ASV Model based on the URDF Loaded onto the parameter server-->
+
+  <node name="asv_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-physics ode -urdf -model asv -param robot_description"/>
+
+</launch>

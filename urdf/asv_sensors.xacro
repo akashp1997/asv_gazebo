@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<robot name="sensors" xmlns:xacro="http://www.ros.org/wiki/xacro">
+	<sensor name="lidar" type="laser" update_rate="50">
+		<parent link="lidar"/>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+	</sensor>
+	<gazebo reference="lidar">
+		<sensor name="lmssick" type="ray">s
+			
+			<ray>
+				<scan>
+					<horizontal>
+						<samples>100</samples>
+						<resolution>1</resolution>
+						<min_angle>-1.1781</min_angle>
+						<max_angle>1.1781</max_angle></horizontal>
+					<vertical>
+						<samples>1</samples>
+						<resolution>1</resolution>
+						<min_angle>0</min_angle>
+						<max_angle>0</max_angle>
+					</vertical>
+				</scan>
+				<range>
+					<min>0.5</min>
+					<max>20</max>
+					<resolution>1</resolution>
+				</range>
+				<noise>
+					<type>gaussian</type>
+					<mean>0</mean>
+					<stddev>0.01</stddev>
+				</noise>
+			</ray>
+			<plugin filename="libgazebo_ros_laser.so" name="lidar">
+				<topicName>/asv/laser/scan</topicName>
+				<frameName>lidar</frameName>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<sensor name="camera" type="camera" update_rate="30">
+		<parent link="camera"/>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+	</sensor>
+	<gazebo reference="camera">
+		<sensor name="camera1" type="camera">
+			<camera name="cam_head">
+				<horizontal_fov>1.0708</horizontal_fov>
+				<image>
+					<width>1280</width>
+					<height>720</height>
+					<format>R8G8B8</format>
+				</image>
+				<clip>
+					<near>0.02</near>
+					<far>300</far>
+				</clip>
+				<noise>
+					<type>gaussian</type>
+					<mean>0.0</mean>
+					<stddev>0.007</stddev>
+				</noise>
+			</camera>
+			<plugin filename="libgazebo_ros_camera.so" name="camera_controller">
+				<cameraName>asv/camera</cameraName>
+				<imageTopicName>image_raw</imageTopicName>
+				<cameraInfoTopicName>camera_info</cameraInfoTopicName>
+				<frameName>camera</frameName>
+				<hackBaseline>0.07</hackBaseline>
+				<distortionK1>0.0</distortionK1>
+				<distortionK2>0.0</distortionK2>
+				<distortionK3>0.0</distortionK3>
+				<distortionT1>0.0</distortionT1>
+				<distortionT2>0.0</distortionT2>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<gazebo reference="base_link">
+		<sensor name="imu" type="imu">
+			<update_rate>100</update_rate>
+			<visualize>true</visualize>
+			<plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+				<topicName>asv/imu</topicName>
+				<bodyName>base_footprint</bodyName>
+				<updateRateHZ>10.0</updateRateHZ>
+				<gaussianNoise>0.0</gaussianNoise>
+				<xyzOffset>0 0 0</xyzOffset>
+				<rpyOffset>0 0 0</rpyOffset>
+				<frameName>base_footprint</frameName>
+			</plugin>
+		</sensor>
+	</gazebo>
+</robot>
