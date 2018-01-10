@@ -23,7 +23,7 @@
 
   <rosparam file="$(find asv_description)/config/asv_joints.yaml" command="load" />
 
-  <!--Load/Spawn the controllers in the Gazebo World-->
+  <!--Load/Spawn the controllers in the World-->
 
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/asv" args="left_thruster_controller right_thruster_controller joint_state_controller" />
 
