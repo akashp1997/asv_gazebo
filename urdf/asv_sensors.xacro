@@ -6,7 +6,6 @@
 	</sensor>
 	<gazebo reference="lidar">
 		<sensor name="lmssick" type="ray">s
-			
 			<ray>
 				<scan>
 					<horizontal>
@@ -33,11 +32,12 @@
 				</noise>
 			</ray>
 			<plugin filename="libgazebo_ros_laser.so" name="lidar">
-				<topicName>/asv/laser/scan</topicName>
+				<topicName>/laser/scan</topicName>
 				<frameName>lidar</frameName>
 			</plugin>
 		</sensor>
 	</gazebo>
+
 	<sensor name="camera" type="camera" update_rate="30">
 		<parent link="camera"/>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
@@ -62,7 +62,7 @@
 				</noise>
 			</camera>
 			<plugin filename="libgazebo_ros_camera.so" name="camera_controller">
-				<cameraName>asv/camera</cameraName>
+				<cameraName>camera</cameraName>
 				<imageTopicName>image_raw</imageTopicName>
 				<cameraInfoTopicName>camera_info</cameraInfoTopicName>
 				<frameName>camera</frameName>
@@ -75,18 +75,33 @@
 			</plugin>
 		</sensor>
 	</gazebo>
+	
 	<gazebo reference="base_link">
 		<sensor name="imu" type="imu">
 			<update_rate>100</update_rate>
 			<visualize>true</visualize>
 			<plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-				<topicName>asv/imu</topicName>
+				<topicName>imu</topicName>
 				<bodyName>base_footprint</bodyName>
 				<updateRateHZ>10.0</updateRateHZ>
 				<gaussianNoise>0.0</gaussianNoise>
 				<xyzOffset>0 0 0</xyzOffset>
 				<rpyOffset>0 0 0</rpyOffset>
 				<frameName>base_footprint</frameName>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<gazebo reference="garmin">
+		<sensor name="hector_gazebo_plugins" type="GazeboRosGps">
+			<plugin filename="libhector_gazebo_ros_gps.so" name="gps_sim">
+				<alwaysOn>1</alwaysOn>
+				<bodyName>garmin</bodyName>
+				<topicName>/gps</topicName>
+				<velocityTopicName>fix_velocity</velocityTopicName>
+				<drift>5.0 5.0 5.0</drift>
+				<gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+				<velocityDrift>0 0 0</velocityDrift>
+				<velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
 			</plugin>
 		</sensor>
 	</gazebo>

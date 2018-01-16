@@ -4,4 +4,8 @@
 	<xacro:include filename="$(find asv_gazebo)/urdf/asv_sensors.xacro"/>
 	<xacro:include filename="$(find asv_description)/urdf/asv_base.xacro"/>
   	<xacro:include filename="$(find asv_controls)/urdf/asv_controllers.xacro"/>
+
+  	<gazebo reference="base_footprint">
+    <turnGravityOff>false</turnGravityOff>
+</gazebo>
 </robot>

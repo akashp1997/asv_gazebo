@@ -21,7 +21,7 @@
 
   <!--Load the Joint Configuration File -->
 
-  <rosparam file="$(find asv_description)/config/asv_joints.yaml" command="load" />
+  <rosparam file="$(find asv_controls)/config/asv_joints.yaml" command="load" />
 
   <!--Load/Spawn the controllers in the World-->
 
@@ -31,7 +31,10 @@
   
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+  <node name="relay" pkg="topic_tools" type="relay" args="/asv/joint_states /joint_states" />
+
+  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>-->
 
   <!--Spawn the ASV Model based on the URDF Loaded onto the parameter server-->
 
