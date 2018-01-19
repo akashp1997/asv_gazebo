@@ -5,6 +5,7 @@
   <arg name="debug" default="false"/>
   <arg name="gui" default="true"/>
   <arg name="world" default="$(find asv_gazebo)/worlds/pond.world"/>
+  <arg name="urdf_path" default="$(find asv_gazebo)/urdf/gazebo.xacro"/>
 
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -19,22 +20,21 @@
    <!-- Load the URDF into the ROS Parameter Server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find asv_gazebo)/urdf/gazebo.xacro' --inorder" />
 
-  <!--Load the Joint Configuration File -->
+  <!--Load the Joint Configuration File-->
 
   <rosparam file="$(find asv_controls)/config/asv_joints.yaml" command="load" />
 
   <!--Load/Spawn the controllers in the World-->
-
+  
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/asv" args="left_thruster_controller right_thruster_controller joint_state_controller" />
 
   <!--Joint And Robot State Publishers to give TF of all links-->
   
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
+  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
 
-  <node name="relay" pkg="topic_tools" type="relay" args="/asv/joint_states /joint_states" />
-
-  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>-->
+  <!--<node name="relay" pkg="topic_tools" type="relay" args="/asv/joint_states /joint_states" />-->
 
   <!--Spawn the ASV Model based on the URDF Loaded onto the parameter server-->
 

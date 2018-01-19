@@ -8,6 +8,10 @@
 				</contact>
 			</simbody>
 		</physics>
-
+ 		<light name='sun' type='directional'>
+			<pose>0 2 2 0 0 0</pose>
+			<diffuse>1 1 1 1</diffuse>
+			<specular>0.1 0.1 0.1 1</specular>
+		</light>
 	</world>
 </sdf>
