@@ -4,7 +4,7 @@
 		<parent link="lidar"/>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
 	</sensor>
-	<gazebo reference="lidar">
+	<!--<gazebo reference="lidar">
 		<sensor name="lmssick" type="ray">s
 			<ray>
 				<scan>
@@ -32,11 +32,12 @@
 				</noise>
 			</ray>
 			<plugin filename="libgazebo_ros_laser.so" name="lidar">
-				<topicName>/laser/scan</topicName>
+				<topicName>/asv/laser/scan</topicName>
 				<frameName>lidar</frameName>
+      			<visualize>true</visualize>
 			</plugin>
 		</sensor>
-	</gazebo>
+	</gazebo>-->
 
 	<sensor name="camera" type="camera" update_rate="30">
 		<parent link="camera"/>
@@ -62,6 +63,7 @@
 				</noise>
 			</camera>
 			<plugin filename="libgazebo_ros_camera.so" name="camera_controller">
+				<robotNamespace>asv</robotNamespace>
 				<cameraName>camera</cameraName>
 				<imageTopicName>image_raw</imageTopicName>
 				<cameraInfoTopicName>camera_info</cameraInfoTopicName>
@@ -78,21 +80,33 @@
 	
 	<gazebo>
 			<plugin filename="libhector_gazebo_ros_imu.so" name="imu_plugin">
-				<topicName>imu</topicName>
-				<bodyName>middle_hull</bodyName>
-				<updateRateHZ>10.0</updateRateHZ>
+				<updateRate>100</updateRate>
+				<robotNamespace>asv</robotNamespace>
+				<bodyName>base_link</bodyName>
+				<topicName>imu_data</topicName>
+				<accelOffset>0 0 0</accelOffset>
+				<accelDrift>0 0 0</accelDrift>
+				<accelDriftFrequency>0 0 0</accelDriftFrequency>
+				<rateOffset>0 0 0</rateOffset>
+				<rateDrift>0 0 0</rateDrift>
+				<rateDriftFrequency>0 0 0</rateDriftFrequency>
+				<rateGuassianNoise>0 0 0</rateGuassianNoise>
+				<yawOffset>0</yawOffset>
+				<yawDrift>0</yawDrift>
+				<yawDriftFrequency>0</yawDriftFrequency>
+				<yawGaussianNoise>0</yawGaussianNoise>
 				<gaussianNoise>0.0</gaussianNoise>
-				<xyzOffset>0 0 0</xyzOffset>
 				<rpyOffset>0 0 0</rpyOffset>
-				<frameName>middle_hull</frameName>
+				<xyzOffset>0 0 0</xyzOffset>
 			</plugin>
 	</gazebo>
 	<gazebo>
 		<!--Be careful of Plugins that are for models and that are for links and for worlds.-->
 			<plugin filename="libhector_gazebo_ros_gps.so" name="gps_sim">
-				<alwaysOn>1</alwaysOn>
+				<updateRate>100</updateRate>
+				<robotNamespace>asv</robotNamespace>
 				<bodyName>garmin</bodyName>
-				<topicName>/gps</topicName>
+				<topicName>fix</topicName>
 				<velocityTopicName>fix_velocity</velocityTopicName>
 				<drift>5.0 5.0 5.0</drift>
 				<gaussianNoise>0.1 0.1 0.1</gaussianNoise>

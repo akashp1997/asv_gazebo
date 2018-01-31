@@ -1,5 +1,9 @@
 <sdf version="1.4">
 	<world name="pond">
+		<gui>
+			<fullscreen>1</fullscreen>
+		</gui>
+
 		<physics type="simbody">
 			<gravity>0 0 0</gravity>
 			<simbody>
@@ -9,9 +13,50 @@
 			</simbody>
 		</physics>
  		<light name='sun' type='directional'>
-			<pose>0 2 2 0 0 0</pose>
+ 			<pose>100 100 100 0 0 0</pose>
 			<diffuse>1 1 1 1</diffuse>
 			<specular>0.1 0.1 0.1 1</specular>
 		</light>
+		<scene>
+			<ambient>0.5 0.5 0.5 1</ambient>
+      		<background>0.494 0.753 0.933 0.1</background>
+      		<sky />
+      		<clouds>
+      			<direction>1</direction>
+      		</clouds>
+      		<shadows>1</shadows>
+      		<grid>0</grid>
+		</scene>
 	</world>
+	<model name="world">
+		<link name="pond">
+			<inertial>
+				<mass>200400000</mass>
+				<inertia>
+					<ixx>168676729570.939</ixx>
+					<iyy>669676736380.348</iyy>
+					<izz>835000011208.206</izz>
+					<ixy>2.78560802543554E-05</ixy>
+					<iyz>1.01182338911612E-05</iyz>
+					<ixz>1.67054331639978E-08</ixz>
+				</inertia>
+			</inertial>
+			<visual name="pond">
+				<pose>0 0 0 1.5707963267949 0 0</pose>
+				<geometry>
+					<mesh>
+						<uri>package://asv_gazebo/meshes/tankwater.STL</uri>
+					</mesh>
+				</geometry>
+			</visual>
+			<collision name="pond">
+				<pose>0 0 0 1.5707963267949 0 0</pose>
+				<geometry>
+					<mesh>
+						<uri>package://asv_gazebo/meshes/tankwater.STL</uri>
+					</mesh>
+				</geometry>
+			</collision>
+		</link>
+	</model>
 </sdf>

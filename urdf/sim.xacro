@@ -7,10 +7,10 @@
     </plugin>
   </gazebo>
 
-  <!--<gazebo >
-    <plugin name="usv_dynamics" filename="libusv_gazebo_dynamics_plugin.so">
+  <gazebo reference="asv_description">
+    <plugin name="water_dynamics" filename="libusv_gazebo_dynamics_plugin.so">
     <bodyName>base_footprint</bodyName>
-    <waterLevel>.5</waterLevel>
+    <waterLevel>.05</waterLevel>
     <waterDensity>997.8</waterDensity>
     <cmdTimeout>1.0</cmdTimeout>
     <xDotU>5.0</xDotU>
@@ -26,8 +26,8 @@
     <nR>20.0</nR>
     <nRR>0.0</nRR> 
     <maxCmd>1.0</maxCmd>
-    <maxForceFwd>40.0</maxForceFwd>
-    <maxForceRev>-40.0</maxForceRev>
+    <maxForceFwd>100.0</maxForceFwd>
+    <maxForceRev>-80.0</maxForceRev>
     <boatArea>0.48</boatArea>
     <boatWidth>1.0</boatWidth>
     <boatLength>1.35</boatLength>
@@ -35,7 +35,21 @@
     <metacentricLength>0.4</metacentricLength>
     <metacentricWidth>0.4</metacentricWidth>
   </plugin>
-</gazebo>-->
+</gazebo>
+
+  <gazebo>
+    <plugin name="controller" filename="libthruster_controller.so" />
+  </gazebo>
+  
+  <!--<gazebo>
+    <plugin name="asv_controller" filename="libgazebo_ros_planar_move.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometryRate>100.0</odometryRate>
+      <robotBaseFrame>base_footprint</robotBaseFrame>
+    </plugin>
+  </gazebo>-->
 
 
 
