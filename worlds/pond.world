@@ -5,7 +5,7 @@
 		</gui>
 
 		<physics type="simbody">
-			<gravity>0 0 0</gravity>
+			<gravity>0 0 -0.001</gravity>
 			<simbody>
 				<contact>
 					<viscous_friction>0.1</viscous_friction>
@@ -27,7 +27,7 @@
       		<shadows>1</shadows>
       		<grid>0</grid>
 		</scene>
-	</world>
+		</world>
 	<model name="world">
 		<link name="pond">
 			<inertial>

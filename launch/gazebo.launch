@@ -31,9 +31,9 @@
 
   <!--Joint And Robot State Publishers to give TF of all links-->
   
-  <!--<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
   <node name="asv_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-physics ode -urdf -model asv -param robot_description"/>
 
