@@ -5,7 +5,7 @@
 		</gui>
 
 		<physics type="simbody">
-			<gravity>0 0 -0.001</gravity>
+			<gravity>0 0 0</gravity>
 			<simbody>
 				<contact>
 					<viscous_friction>0.1</viscous_friction>

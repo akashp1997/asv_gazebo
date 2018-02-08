@@ -48,12 +48,28 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   // Get the world name.
   this->world_ = _model->GetWorld();
 
-      this->twist_msg_.linear.x = 0;
-      this->twist_msg_.linear.y = 0;
-      this->twist_msg_.linear.z = 0;
-      this->twist_msg_.angular.x = 0;
-      this->twist_msg_.angular.y = 0;
-      this->twist_msg_.angular.z = 0;
+  this->left_twist_msg_.linear.x = 0;
+  this->left_twist_msg_.linear.y = 0;
+  this->left_twist_msg_.linear.z = 0;
+  this->left_twist_msg_.angular.x = 0;
+  this->left_twist_msg_.angular.y = 0;
+  this->left_twist_msg_.angular.z = 0;
+  
+  this->right_twist_msg_.linear.x = 0;
+  this->right_twist_msg_.linear.y = 0;
+  this->right_twist_msg_.linear.z = 0;
+  this->right_twist_msg_.angular.x = 0;
+  this->right_twist_msg_.angular.y = 0;
+  this->right_twist_msg_.angular.z = 0;
+  
+  this->twist_msg_.linear.x = 0;
+  this->twist_msg_.linear.y = 0;
+  this->twist_msg_.linear.z = 0;
+  this->twist_msg_.angular.x = 0;
+  this->twist_msg_.angular.y = 0;
+  this->twist_msg_.angular.z = 0;
+
+  this->model_ = _model;
 
   // load parameters
   this->robot_namespace_ = "";
@@ -62,7 +78,7 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   if (!_sdf->HasElement("bodyName"))
   {
-    ROS_FATAL_NAMED("accel", "accel plugin missing <bodyName>, cannot proceed");
+    ROS_FATAL_NAMED("force", "force plugin missing <bodyName>, cannot proceed");
     return;
   }
   else
@@ -71,17 +87,18 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->link_ = _model->GetLink(this->link_name_);
   if (!this->link_)
   {
-    ROS_FATAL_NAMED("accel", "gazebo_Thuster_Controller plugin error: link named: %s does not exist\n",this->link_name_.c_str());
+    ROS_FATAL_NAMED("force", "gazebo_ros_force plugin error: link named: %s does not exist\n",this->link_name_.c_str());
     return;
-  }
+}
 
-  if (!_sdf->HasElement("topicName"))
+  if (!_sdf->HasElement("LeftTopicName")||!_sdf->HasElement("RightTopicName"))
   {
-    ROS_FATAL_NAMED("accel", "accel plugin missing <topicName>, cannot proceed");
+    ROS_FATAL_NAMED("accel", "accel plugin missing <LeftTopicName> and/or <RightTopicName>, cannot proceed");
     return;
   }
   else
-    this->topic_name_ = _sdf->GetElement("topicName")->Get<std::string>();
+    this->left_topic_name_ = _sdf->GetElement("LeftTopicName")->Get<std::string>();
+    this->right_topic_name_ = _sdf->GetElement("RightTopicName")->Get<std::string>();
 
 
   // Make sure the ROS node for Gazebo has already been initialized
@@ -95,11 +112,16 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // Custom Callback Queue
-  ros::SubscribeOptions so = ros::SubscribeOptions::create<geometry_msgs::Twist>(
-    this->topic_name_,1,
-    boost::bind(&gazebo::GazeboThrusterController::UpdateObjectAccel,this,_1),
+  ros::SubscribeOptions so_left = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+    this->left_topic_name_,1,
+    boost::bind(&gazebo::GazeboThrusterController::UpdateObjectLeftAccel,this,_1),
     ros::VoidPtr(), &this->queue_);
-  this->sub_ = this->rosnode_->subscribe(so);
+  ros::SubscribeOptions so_right = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+    this->right_topic_name_,1,
+    boost::bind(&gazebo::GazeboThrusterController::UpdateObjectRightAccel,this,_1),
+    ros::VoidPtr(), &this->queue_);
+  this->sub_left_ = this->rosnode_->subscribe(so_left);
+  this->sub_right_ = this->rosnode_->subscribe(so_right);
 
   // Custom Callback Queue
   this->callback_queue_thread_ = boost::thread( boost::bind( &gazebo::GazeboThrusterController::QueueThread,this ) );
@@ -113,14 +135,39 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-public: void UpdateObjectAccel(const geometry_msgs::Twist::ConstPtr& _msg)
+public: void UpdateObjectLeftAccel(const geometry_msgs::Twist::ConstPtr& _msg)
 {
-  this->twist_msg_.linear.x = _msg->linear.x;
-  this->twist_msg_.linear.y = _msg->linear.y;
-  this->twist_msg_.linear.z = _msg->linear.z;
-  this->twist_msg_.angular.x = _msg->angular.x;
-  this->twist_msg_.angular.y = _msg->angular.y;
-  this->twist_msg_.angular.z = _msg->angular.z;
+  //ROS_INFO("Left");
+  this->left_twist_msg_.linear.x = _msg->linear.x;
+  this->left_twist_msg_.linear.y = _msg->linear.y;
+  this->left_twist_msg_.linear.z = _msg->linear.z;
+  this->left_twist_msg_.angular.x = _msg->angular.x;
+  this->left_twist_msg_.angular.y = _msg->angular.y;
+  this->left_twist_msg_.angular.z = _msg->angular.z;
+  this->twist_msg_.linear.x = this->left_twist_msg_.linear.x+this->right_twist_msg_.linear.x;
+  this->twist_msg_.linear.y = this->left_twist_msg_.linear.y + this->right_twist_msg_.linear.y;
+  this->twist_msg_.linear.z = this->left_twist_msg_.linear.z + this->right_twist_msg_.linear.z;
+  this->twist_msg_.angular.x = this->left_twist_msg_.angular.x + this->right_twist_msg_.angular.x;
+  this->twist_msg_.angular.y = this->left_twist_msg_.angular.y + this->right_twist_msg_.angular.y;
+  this->twist_msg_.angular.z = this->left_twist_msg_.angular.z + this->right_twist_msg_.angular.z;
+
+}
+public: void UpdateObjectRightAccel(const geometry_msgs::Twist::ConstPtr& _msg)
+{
+  //ROS_INFO("Right");
+  this->right_twist_msg_.linear.x = _msg->linear.x;
+  this->right_twist_msg_.linear.y = _msg->linear.y;
+  this->right_twist_msg_.linear.z = _msg->linear.z;
+  this->right_twist_msg_.angular.x = _msg->angular.x;
+  this->right_twist_msg_.angular.y = _msg->angular.y;
+  this->right_twist_msg_.angular.z = _msg->angular.z;
+  this->twist_msg_.linear.x = this->left_twist_msg_.linear.x+this->right_twist_msg_.linear.x;
+  this->twist_msg_.linear.y = this->left_twist_msg_.linear.y + this->right_twist_msg_.linear.y;
+  this->twist_msg_.linear.z = this->left_twist_msg_.linear.z + this->right_twist_msg_.linear.z;
+  this->twist_msg_.angular.x = this->left_twist_msg_.angular.x + this->right_twist_msg_.angular.x;
+  this->twist_msg_.angular.y = this->left_twist_msg_.angular.y + this->right_twist_msg_.angular.y;
+  this->twist_msg_.angular.z = this->left_twist_msg_.angular.z + this->right_twist_msg_.angular.z;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,9 +176,9 @@ public: void UpdateChild()
 {
   this->lock_.lock();
   ignition::math::Vector3d linear(this->twist_msg_.linear.x,this->twist_msg_.linear.y,this->twist_msg_.linear.z);
-  ignition::math::Vector3d offset(this->twist_msg_.angular.x,this->twist_msg_.angular.y,this->twist_msg_.angular.z);
-  this->link_->AddLinkForce(linear);
-  this->link_->AddRelativeTorque(offset);
+  ignition::math::Vector3d angular(this->twist_msg_.angular.x,this->twist_msg_.angular.y,this->twist_msg_.angular.z);
+  this->link_->SetForce(linear);
+  this->link_->SetTorque(angular);
   this->lock_.unlock();
 }
 
@@ -152,18 +199,21 @@ private: void QueueThread()
   /// \brief A pointer to the gazebo world.
   private: physics::WorldPtr world_;
 
+  private: physics::ModelPtr model_;
+
   /// \brief A pointer to the Link, where force is applied
   private: physics::LinkPtr link_;
-
   /// \brief A pointer to the ROS node.  A node will be instantiated if it does not exist.
   private: ros::NodeHandle* rosnode_;
-  private: ros::Subscriber sub_;
+  private: ros::Subscriber sub_left_;
+  private: ros::Subscriber sub_right_;
 
   /// \brief A mutex to lock access to fields that are used in ROS message callbacks
   private: boost::mutex lock_;
 
   /// \brief ROS Wrench topic name inputs
-  private: std::string topic_name_;
+  private: std::string left_topic_name_;
+  private: std::string right_topic_name_;
   /// \brief The Link this plugin is attached to, and will exert forces on.
   private: std::string link_name_;
 
@@ -175,6 +225,8 @@ private: void QueueThread()
   /// \brief Thead object for the running callback Thread.
   private: boost::thread callback_queue_thread_;
   /// \brief Container for the wrench force that this plugin exerts on the body.
+  private: geometry_msgs::Twist left_twist_msg_;
+  private: geometry_msgs::Twist right_twist_msg_;
   private: geometry_msgs::Twist twist_msg_;
 
   // Pointer to the update event connection

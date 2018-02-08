@@ -36,26 +36,28 @@
     </plugin>
   </gazebo>-->
   <gazebo>
-    <plugin filename="libgazebo_ros_force.so" name="gazebo_ros_force">
+    <plugin filename="libthruster_control.so" name="gazebo_ros_force">
       <alwaysOn>1</alwaysOn>
-      <bodyName>thruster_left</bodyName>
-      <topicName>left_force</topicName>
-      <robotNamespace>asv</robotNamespace>
-    </plugin>
-
-    <plugin filename="libgazebo_ros_force.so" name="gazebo_ros_force">
-      <alwaysOn>1</alwaysOn>
-      <bodyName>thruster_right</bodyName>
-      <topicName>right_force</topicName>
-      <robotNamespace>asv</robotNamespace>
+      <bodyName>base_footprint</bodyName>
+      <LeftThrusterName>thruster_left</LeftThrusterName>
+      <RightThrusterName>thruster_right</RightThrusterName>
+      <LeftTopicName>/left_pwm</LeftTopicName>
+      <RightTopicName>/right_pwm</RightTopicName>
     </plugin>
   </gazebo>
-  <gazebo>
+
+    <!--<plugin filename="libthruster_control.so" name="gazebo_ros_force">
+      <alwaysOn>1</alwaysOn>
+      <bodyName>base_link</bodyName>
+      <topicName>/right_pwm</topicName>
+    </plugin>
+  </gazebo>-->
+  <!--<gazebo>
     <plugin name="BuoyancyPlugin" filename="libBuoyancyPlugin.so">
       <fluid_density>997.8</fluid_density>
       <link name="base_link" />
     </plugin>
-  </gazebo>
+  </gazebo>-->
   <!--<gazebo>
     <plugin filename="libthruster_control.so" name="controller">
       <bodyName>base_link</bodyName>

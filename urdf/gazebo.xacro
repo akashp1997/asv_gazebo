@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="asv_gazebo" xmlns:xacro="http://www.ros.org/wiki/xacro">
-	<!--<xacro:include filename="$(find asv_gazebo)/urdf/sim.xacro"/>
-	<xacro:include filename="$(find asv_gazebo)/urdf/asv_sensors.xacro"/>-->
+	<xacro:include filename="$(find asv_gazebo)/urdf/sim.xacro"/>
+	<xacro:include filename="$(find asv_gazebo)/urdf/asv_sensors.xacro"/>
 	<xacro:include filename="$(find asv_description)/urdf/asv_base.xacro"/>
   	<!--<xacro:include filename="$(find asv_controls)/urdf/asv_controllers.xacro"/>-->
 
