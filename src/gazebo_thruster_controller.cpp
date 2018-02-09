@@ -6,6 +6,7 @@
 #include <ros/callback_queue.h>
 #include <ros/subscribe_options.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float64.h>
 
 #include <ros/ros.h>
 #include <boost/thread.hpp>
@@ -48,26 +49,12 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   // Get the world name.
   this->world_ = _model->GetWorld();
 
-  this->left_twist_msg_.linear.x = 0;
-  this->left_twist_msg_.linear.y = 0;
-  this->left_twist_msg_.linear.z = 0;
-  this->left_twist_msg_.angular.x = 0;
-  this->left_twist_msg_.angular.y = 0;
-  this->left_twist_msg_.angular.z = 0;
-  
-  this->right_twist_msg_.linear.x = 0;
-  this->right_twist_msg_.linear.y = 0;
-  this->right_twist_msg_.linear.z = 0;
-  this->right_twist_msg_.angular.x = 0;
-  this->right_twist_msg_.angular.y = 0;
-  this->right_twist_msg_.angular.z = 0;
-  
-  this->twist_msg_.linear.x = 0;
-  this->twist_msg_.linear.y = 0;
-  this->twist_msg_.linear.z = 0;
-  this->twist_msg_.angular.x = 0;
-  this->twist_msg_.angular.y = 0;
-  this->twist_msg_.angular.z = 0;
+  this->left_cmd_ = 1500;
+  this->right_cmd_ = 1500;
+  this->thr = 0.3
+
+  this->w_l = 0;
+  this->w_r = 0;
 
   this->model_ = _model;
 
@@ -135,38 +122,21 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-public: void UpdateObjectLeftAccel(const geometry_msgs::Twist::ConstPtr& _msg)
+public: void UpdateObjectLeftAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Left");
-  this->left_twist_msg_.linear.x = _msg->linear.x;
-  this->left_twist_msg_.linear.y = _msg->linear.y;
-  this->left_twist_msg_.linear.z = _msg->linear.z;
-  this->left_twist_msg_.angular.x = _msg->angular.x;
-  this->left_twist_msg_.angular.y = _msg->angular.y;
-  this->left_twist_msg_.angular.z = _msg->angular.z;
-  this->twist_msg_.linear.x = this->left_twist_msg_.linear.x+this->right_twist_msg_.linear.x;
-  this->twist_msg_.linear.y = this->left_twist_msg_.linear.y + this->right_twist_msg_.linear.y;
-  this->twist_msg_.linear.z = this->left_twist_msg_.linear.z + this->right_twist_msg_.linear.z;
-  this->twist_msg_.angular.x = this->left_twist_msg_.angular.x + this->right_twist_msg_.angular.x;
-  this->twist_msg_.angular.y = this->left_twist_msg_.angular.y + this->right_twist_msg_.angular.y;
-  this->twist_msg_.angular.z = this->left_twist_msg_.angular.z + this->right_twist_msg_.angular.z;
+  this->left_cmd_ = _msg;
 
 }
-public: void UpdateObjectRightAccel(const geometry_msgs::Twist::ConstPtr& _msg)
+public: void UpdateAccel()
+{
+  this->w_l = (this->left_cmd_.data-1500)/400
+  this->w_r = (this->right_cmd_.data-1500)/400
+}
+public: void UpdateObjectRightAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Right");
-  this->right_twist_msg_.linear.x = _msg->linear.x;
-  this->right_twist_msg_.linear.y = _msg->linear.y;
-  this->right_twist_msg_.linear.z = _msg->linear.z;
-  this->right_twist_msg_.angular.x = _msg->angular.x;
-  this->right_twist_msg_.angular.y = _msg->angular.y;
-  this->right_twist_msg_.angular.z = _msg->angular.z;
-  this->twist_msg_.linear.x = this->left_twist_msg_.linear.x+this->right_twist_msg_.linear.x;
-  this->twist_msg_.linear.y = this->left_twist_msg_.linear.y + this->right_twist_msg_.linear.y;
-  this->twist_msg_.linear.z = this->left_twist_msg_.linear.z + this->right_twist_msg_.linear.z;
-  this->twist_msg_.angular.x = this->left_twist_msg_.angular.x + this->right_twist_msg_.angular.x;
-  this->twist_msg_.angular.y = this->left_twist_msg_.angular.y + this->right_twist_msg_.angular.y;
-  this->twist_msg_.angular.z = this->left_twist_msg_.angular.z + this->right_twist_msg_.angular.z;
+  this->right_cmd_ = _msg;
 
 }
 
@@ -175,8 +145,10 @@ public: void UpdateObjectRightAccel(const geometry_msgs::Twist::ConstPtr& _msg)
 public: void UpdateChild()
 {
   this->lock_.lock();
-  ignition::math::Vector3d linear(this->twist_msg_.linear.x,this->twist_msg_.linear.y,this->twist_msg_.linear.z);
-  ignition::math::Vector3d angular(this->twist_msg_.angular.x,this->twist_msg_.angular.y,this->twist_msg_.angular.z);
+  int lin = thr*(w_l+w_r)
+  int ang = (w_r-w_l)
+  ignition::math::Vector3d linear(lin,0,0);
+  ignition::math::Vector3d angular(0,0,ang);
   this->link_->SetForce(linear);
   this->link_->SetTorque(angular);
   this->lock_.unlock();
@@ -199,8 +171,6 @@ private: void QueueThread()
   /// \brief A pointer to the gazebo world.
   private: physics::WorldPtr world_;
 
-  private: physics::ModelPtr model_;
-
   /// \brief A pointer to the Link, where force is applied
   private: physics::LinkPtr link_;
   /// \brief A pointer to the ROS node.  A node will be instantiated if it does not exist.
@@ -215,7 +185,7 @@ private: void QueueThread()
   private: std::string left_topic_name_;
   private: std::string right_topic_name_;
   /// \brief The Link this plugin is attached to, and will exert forces on.
-  private: std::string link_name_;
+  private: std::string link_name_;t p
 
   /// \brief for setting ROS name space
   private: std::string robot_namespace_;
@@ -225,9 +195,12 @@ private: void QueueThread()
   /// \brief Thead object for the running callback Thread.
   private: boost::thread callback_queue_thread_;
   /// \brief Container for the wrench force that this plugin exerts on the body.
-  private: geometry_msgs::Twist left_twist_msg_;
-  private: geometry_msgs::Twist right_twist_msg_;
-  private: geometry_msgs::Twist twist_msg_;
+  private: float w_l;
+  private: float w_r;
+  private: float thr;
+  
+  private: std_msgs::Float64 left_cmd_;
+  private: std_msgs::Float64 right_cmd_;
 
   // Pointer to the update event connection
   private: event::ConnectionPtr update_connection_;
