@@ -83,7 +83,7 @@
 				<topicName>imu_data</topicName>
 				<bodyName>base_link</bodyName>
 				<updateRateHZ>100.0</updateRateHZ>
-				<gaussianNoise>0.001</gaussianNoise>
+				<gaussianNoise>0.0000001</gaussianNoise>
 				<xyzOffset>0 0 0</xyzOffset>
 				<rpyOffset>0 0 0</rpyOffset>
 				<frameName>base_link</frameName>
@@ -93,14 +93,14 @@
 	<gazebo>
 		<!--Be careful of Plugins that are for models and that are for links and for worlds.-->
 		<plugin filename="libhector_gazebo_ros_gps.so" name="gps_sim">
-			<updateRate>100</updateRate>
+			<updateRate>10</updateRate>
 			<bodyName>garmin</bodyName>
 			<topicName>/fix</topicName>
 			<velocityTopicName>/vel_vector3</velocityTopicName>
 			<drift>5.0 5.0 5.0</drift>
-			<gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+			<gaussianNoise>0.0000001 0.0000001 0.0000001</gaussianNoise>
 			<velocityDrift>0 0 0</velocityDrift>
-			<velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+			<velocityGaussianNoise>0.0000001 0.0000001 0.0000001</velocityGaussianNoise>
 		</plugin>
 	</gazebo>
 </robot>
