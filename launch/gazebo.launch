@@ -31,7 +31,7 @@
 
   <!--Joint And Robot State Publishers to give TF of all links-->
   
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
 
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
@@ -42,6 +42,8 @@
   </include>-->
 
   <node name="gps" pkg="asv_gazebo" type="gps_calibrate.py" respawn="true"/>
+
+  <node name="odom" pkg="asv_sensors" type="gps_to_odom.py" respawn="true"/>
 
   <!--<node name="relay" pkg="topic_tools" type="relay" args="/asv/camera/image_raw/compressed /asv/application/camera/rgb/image_color/compressed_throttle" />-->
 

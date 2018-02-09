@@ -49,9 +49,9 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   // Get the world name.
   this->world_ = _model->GetWorld();
 
-  this->left_cmd_ = 1500;
-  this->right_cmd_ = 1500;
-  this->thr = 0.3
+  this->left_cmd_.data = 1500;
+  this->right_cmd_.data = 1500;
+  this->thr = 0.3;
 
   this->w_l = 0;
   this->w_r = 0;
@@ -99,11 +99,11 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // Custom Callback Queue
-  ros::SubscribeOptions so_left = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+  ros::SubscribeOptions so_left = ros::SubscribeOptions::create<std_msgs::Float64>(
     this->left_topic_name_,1,
     boost::bind(&gazebo::GazeboThrusterController::UpdateObjectLeftAccel,this,_1),
     ros::VoidPtr(), &this->queue_);
-  ros::SubscribeOptions so_right = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+  ros::SubscribeOptions so_right = ros::SubscribeOptions::create<std_msgs::Float64>(
     this->right_topic_name_,1,
     boost::bind(&gazebo::GazeboThrusterController::UpdateObjectRightAccel,this,_1),
     ros::VoidPtr(), &this->queue_);
@@ -125,18 +125,19 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 public: void UpdateObjectLeftAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Left");
-  this->left_cmd_ = _msg;
+  this->left_cmd_.data = _msg->data;
+
 
 }
 public: void UpdateAccel()
 {
-  this->w_l = (this->left_cmd_.data-1500)/400
-  this->w_r = (this->right_cmd_.data-1500)/400
+  this->w_l = (this->left_cmd_.data-1500)/400;
+  this->w_r = (this->right_cmd_.data-1500)/400;
 }
 public: void UpdateObjectRightAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Right");
-  this->right_cmd_ = _msg;
+  this->right_cmd_.data = _msg->data;
 
 }
 
@@ -145,12 +146,13 @@ public: void UpdateObjectRightAccel(const std_msgs::Float64::ConstPtr& _msg)
 public: void UpdateChild()
 {
   this->lock_.lock();
-  int lin = thr*(w_l+w_r)
-  int ang = (w_r-w_l)
+  this->UpdateAccel();
+  double lin = this->thr*(this->w_l+this->w_r);
+  double ang = (this->w_r-this->w_l);
   ignition::math::Vector3d linear(lin,0,0);
   ignition::math::Vector3d angular(0,0,ang);
-  this->link_->SetForce(linear);
-  this->link_->SetTorque(angular);
+  this->link_->AddForce(linear);
+  this->link_->AddTorque(angular);
   this->lock_.unlock();
 }
 
@@ -173,6 +175,7 @@ private: void QueueThread()
 
   /// \brief A pointer to the Link, where force is applied
   private: physics::LinkPtr link_;
+  private: physics::ModelPtr model_;
   /// \brief A pointer to the ROS node.  A node will be instantiated if it does not exist.
   private: ros::NodeHandle* rosnode_;
   private: ros::Subscriber sub_left_;
@@ -185,7 +188,7 @@ private: void QueueThread()
   private: std::string left_topic_name_;
   private: std::string right_topic_name_;
   /// \brief The Link this plugin is attached to, and will exert forces on.
-  private: std::string link_name_;t p
+  private: std::string link_name_;
 
   /// \brief for setting ROS name space
   private: std::string robot_namespace_;

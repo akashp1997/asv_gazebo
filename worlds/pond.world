@@ -1,8 +1,5 @@
 <sdf version="1.4">
 	<world name="pond">
-		<gui>
-			<fullscreen>1</fullscreen>
-		</gui>
 
 		<physics type="simbody">
 			<gravity>0 0 0</gravity>
@@ -21,9 +18,6 @@
 			<ambient>0.5 0.5 0.5 1</ambient>
       		<background>0.494 0.753 0.933 0.1</background>
       		<sky />
-      		<clouds>
-      			<direction>1</direction>
-      		</clouds>
       		<shadows>1</shadows>
       		<grid>0</grid>
 		</scene>
