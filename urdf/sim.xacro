@@ -41,8 +41,8 @@
       <bodyName>base_footprint</bodyName>
       <LeftThrusterName>thruster_left</LeftThrusterName>
       <RightThrusterName>thruster_right</RightThrusterName>
-      <LeftTopicName>/left_pwm</LeftTopicName>
-      <RightTopicName>/right_pwm</RightTopicName>
+      <LeftTopicName>/left_thruster/command</LeftTopicName>
+      <RightTopicName>/right_thruster/command</RightTopicName>
     </plugin>
   </gazebo>
 

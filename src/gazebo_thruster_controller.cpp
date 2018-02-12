@@ -49,8 +49,8 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   // Get the world name.
   this->world_ = _model->GetWorld();
 
-  this->left_cmd_.data = 1500;
-  this->right_cmd_.data = 1500;
+  this->left_cmd_.data = 0;
+  this->right_cmd_.data = 0;
   this->thr = 0.3;
 
   this->w_l = 0;
@@ -126,13 +126,16 @@ public: void UpdateObjectLeftAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Left");
   this->left_cmd_.data = _msg->data;
+  //ROS_INFO("%f", this->left_cmd_.data);
 
 
 }
 public: void UpdateAccel()
 {
-  this->w_l = (this->left_cmd_.data-1500)/400;
-  this->w_r = (this->right_cmd_.data-1500)/400;
+  this->w_l = this->left_cmd_.data;
+  this->w_r = this->right_cmd_.data;
+  //ROS_INFO("%f %f", this->left_cmd_.data, this->right_cmd_.data);
+  //ROS_INFO("%d %d", this->w_l, this->w_r);
 }
 public: void UpdateObjectRightAccel(const std_msgs::Float64::ConstPtr& _msg)
 {

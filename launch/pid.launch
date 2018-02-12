@@ -1,0 +1,28 @@
+<launch>
+    <node name="pid" pkg="pid" type="controller" ns="left_thruster" output="screen" >
+      <param name="Kp" value="2" />
+      <param name="Ki" value="1" />
+      <param name="Kd" value="0.4" />
+      <!--<param name="windup_limit" value="2.4833343" />
+      <param name="cutoff_frequency" value="20" />
+      <param name="max_loop_frequency" value="105.0" />
+      <param name="min_loop_frequency" value="95.0" />-->
+      <param name="topic_from_controller" value="command" />
+      <param name="topic_from_plant" value="odom" />
+      <param name="setpoint_topic" value="cmd_vel" />
+     </node>
+
+    <node name="pid" pkg="pid" type="controller" ns="right_thruster" output="screen" >
+      <param name="Kp" value="2" />
+      <param name="Ki" value="1" />
+      <param name="Kd" value="0.4" />
+      <!--<param name="windup_limit" value="2.4833343" />
+      <param name="cutoff_frequency" value="20" />
+      <param name="max_loop_frequency" value="105.0" />
+      <param name="min_loop_frequency" value="95.0" />-->
+      <param name="topic_from_controller" value="command" />
+      <param name="topic_from_plant" value="odom" />
+      <param name="setpoint_topic" value="cmd_vel" />
+     </node>
+
+</launch>

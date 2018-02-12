@@ -3,7 +3,7 @@
 	<!-- roslaunch arguments -->
   <arg name="paused" default="false"/>
   <arg name="debug" default="false"/>
-  <arg name="gui" default="false"/>
+  <arg name="gui" default="true"/>
   <arg name="world" default="$(find asv_gazebo)/worlds/pond.world"/>
   <arg name="urdf_path" default="$(find asv_gazebo)/urdf/gazebo.xacro"/>
   <arg name="host" default="192.168.0.100"/>
@@ -15,7 +15,7 @@
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="use_sim_time" value="true" />
-    <arg name="headless" value="true" />
+    <arg name="headless" value="false" />
   </include>
 
    <!-- Load the URDF into the ROS Parameter Server -->
@@ -47,7 +47,9 @@
 
   <node name="control_split" pkg="asv_controls" type="control_set.py"/>
 
-  <include file="$(find asv_controls)/launch/pid.launch" />
+  <include file="$(find asv_gazebo)/launch/pid.launch" />
+
+  <!--<node name="create_pwm" pkg="asv_controls" type="create_pwm.py" />-->
 
   <!--<node name="relay" pkg="topic_tools" type="relay" args="/asv/camera/image_raw/compressed /asv/application/camera/rgb/image_color/compressed_throttle" />-->
 
