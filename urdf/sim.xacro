@@ -6,10 +6,10 @@
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
     </plugin>
   </gazebo>
-  <!--<gazebo reference="asv_description">
+  <gazebo reference="asv_description">
     <plugin filename="libusv_gazebo_dynamics_plugin.so" name="water_dynamics">
-      <bodyName>base_footprint</bodyName>
-      <waterLevel>.05</waterLevel>
+      <bodyName>base_link</bodyName>
+      <waterLevel>0.05</waterLevel>
       <waterDensity>997.8</waterDensity>
       <cmdTimeout>1.0</cmdTimeout>
       <xDotU>5.0</xDotU>
@@ -34,35 +34,21 @@
       <metacentricLength>0.4</metacentricLength>
       <metacentricWidth>0.4</metacentricWidth>
     </plugin>
-  </gazebo>-->
+  </gazebo>
+
   <gazebo>
-    <plugin filename="libthruster_control.so" name="gazebo_ros_force">
-      <alwaysOn>1</alwaysOn>
-      <bodyName>base_footprint</bodyName>
-      <LeftThrusterName>thruster_left</LeftThrusterName>
-      <RightThrusterName>thruster_right</RightThrusterName>
+    <plugin name="gazebo_thruster_control" filename="libthruster_control.so">
+      <bodyName>base_hull</bodyName>
       <LeftTopicName>/left_pwm</LeftTopicName>
       <RightTopicName>/right_pwm</RightTopicName>
     </plugin>
   </gazebo>
 
-    <!--<plugin filename="libthruster_control.so" name="gazebo_ros_force">
-      <alwaysOn>1</alwaysOn>
-      <bodyName>base_link</bodyName>
-      <topicName>/right_pwm</topicName>
-    </plugin>
+  <!--<gazebo reference="base_hull">
+    <gravity>0</gravity>
+  </gazebo>
+  <gazebo reference="base_link">
+    <gravity>0</gravity>
   </gazebo>-->
-  <!--<gazebo>
-    <plugin name="BuoyancyPlugin" filename="libBuoyancyPlugin.so">
-      <fluid_density>997.8</fluid_density>
-      <link name="base_link" />
-    </plugin>
-  </gazebo>-->
-  <!--<gazebo>
-    <plugin filename="libthruster_control.so" name="controller">
-      <bodyName>base_link</bodyName>
-      <topicName>force</topicName>
-    </plugin>
-  </gazebo>-->
-  <!--<gazebo><plugin name="asv_controller" filename="libgazebo_ros_planar_move.so"><commandTopic>cmd_vel</commandTopic><odometryTopic>odom</odometryTopic><odometryFrame>odom</odometryFrame><odometryRate>100.0</odometryRate><robotBaseFrame>base_footprint</robotBaseFrame></plugin></gazebo>-->
+
 </robot>

@@ -1,18 +1,19 @@
 <?xml version="1.0"?>
 <robot name="sensors" xmlns:xacro="http://www.ros.org/wiki/xacro">
 	<sensor name="lidar" type="laser" update_rate="50">
-		<parent link="lidar"/>
+		<parent link="base_link"/>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<update_rate>50</update_rate>
 	</sensor>
-	<!--<gazebo reference="lidar">
+	<gazebo reference="base_link">
 		<sensor name="lmssick" type="ray">s
 			<ray>
 				<scan>
 					<horizontal>
-						<samples>100</samples>
-						<resolution>1</resolution>
-						<min_angle>-1.1781</min_angle>
-						<max_angle>1.1781</max_angle></horizontal>
+						<samples>540</samples>
+						<resolution>0.5</resolution>
+						<min_angle>-${3*PI/4}</min_angle>
+						<max_angle>${3*PI/4}</max_angle></horizontal>
 					<vertical>
 						<samples>1</samples>
 						<resolution>1</resolution>
@@ -22,7 +23,7 @@
 				</scan>
 				<range>
 					<min>0.5</min>
-					<max>20</max>
+					<max>50</max>
 					<resolution>1</resolution>
 				</range>
 				<noise>
@@ -32,18 +33,18 @@
 				</noise>
 			</ray>
 			<plugin filename="libgazebo_ros_laser.so" name="lidar">
-				<topicName>/asv/laser/scan</topicName>
-				<frameName>lidar</frameName>
+				<topicName>/scan</topicName>
+				<frameName>base_link</frameName>
       			<visualize>true</visualize>
 			</plugin>
 		</sensor>
-	</gazebo>-->
+	</gazebo>
 
-	<sensor name="camera" type="camera" update_rate="30">
-		<parent link="camera"/>
+	<!--<sensor name="camera" type="camera" update_rate="30">
+		<parent link="base_link"/>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
 	</sensor>
-	<gazebo reference="camera">
+	<gazebo reference="base_link">
 		<sensor name="camera1" type="camera">
 			<camera name="cam_head">
 				<horizontal_fov>1.0708</horizontal_fov>
@@ -76,12 +77,11 @@
 				<distortionT2>0.0</distortionT2>
 			</plugin>
 		</sensor>
-	</gazebo>
+	</gazebo>-->
 	
 	<gazebo>
 			<plugin filename="libhector_gazebo_ros_imu.so" name="imu_plugin">
-				<updateRate>100</updateRate>
-				<robotNamespace>asv</robotNamespace>
+				<updateRate>20</updateRate>
 				<bodyName>base_link</bodyName>
 				<topicName>imu_data</topicName>
 				<accelOffset>0 0 0</accelOffset>
@@ -94,8 +94,8 @@
 				<yawOffset>0</yawOffset>
 				<yawDrift>0</yawDrift>
 				<yawDriftFrequency>0</yawDriftFrequency>
-				<yawGaussianNoise>0</yawGaussianNoise>
-				<gaussianNoise>0.0</gaussianNoise>
+				<yawGaussianNoise>0.000</yawGaussianNoise>
+				<gaussianNoise>0.000</gaussianNoise>
 				<rpyOffset>0 0 0</rpyOffset>
 				<xyzOffset>0 0 0</xyzOffset>
 			</plugin>
@@ -103,14 +103,14 @@
 	<gazebo>
 		<!--Be careful of Plugins that are for models and that are for links and for worlds.-->
 			<plugin filename="libhector_gazebo_ros_gps.so" name="gps_sim">
-				<updateRate>100</updateRate>
-				<bodyName>garmin</bodyName>
+				<updateRate>10</updateRate>
+				<bodyName>base_link</bodyName>
 				<topicName>/fix</topicName>
 				<velocityTopicName>/vel</velocityTopicName>
-				<drift>5.0 5.0 5.0</drift>
-				<gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+				<drift>0 0 0</drift>
+				<gaussianNoise>0.000 0.000 0.000</gaussianNoise>
 				<velocityDrift>0 0 0</velocityDrift>
-				<velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+				<velocityGaussianNoise>0 0 0</velocityGaussianNoise>
 			</plugin>
 	</gazebo>
 </robot>

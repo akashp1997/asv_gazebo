@@ -4,13 +4,11 @@
   <arg name="paused" default="false"/>
   <arg name="debug" default="false"/>
   <arg name="gui" default="true"/>
-  <arg name="world" default="$(find asv_gazebo)/worlds/pond.world"/>
   <arg name="urdf_path" default="$(find asv_gazebo)/urdf/gazebo.xacro"/>
   <arg name="host" default="192.168.0.100"/>
 
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(arg world)"/>
     <arg name="paused" value="$(arg paused)" />
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
@@ -18,45 +16,29 @@
     <arg name="headless" value="false" />
   </include>
 
-   <!-- Load the URDF into the ROS Parameter Server -->
+  <!-- Load the URDF into the ROS Parameter Server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find asv_gazebo)/urdf/gazebo.xacro' --inorder" />
-
-  <!--Load the Joint Configuration File-->
-
-  <rosparam file="$(find asv_controls)/config/asv_joints.yaml" command="load" />
-
-  <!--Load/Spawn the controllers in the World-->
-  
-  <!--<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/asv" args="left_thruster_controller right_thruster_controller joint_state_controller" />-->
-
-  <!--Joint And Robot State Publishers to give TF of all links-->
-  
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
   <node name="asv_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-physics ode -urdf -model asv -param robot_description"/>
 
-  <!--<include file="$(find lms1xx)/launch/LMS1xx.launch">
-    <arg name="host" value="$(arg host)" />
-  </include>-->
-
-
-
-  <!--<node name="relay" pkg="topic_tools" type="relay" args="/asv/camera/image_raw/compressed /asv/application/camera/rgb/image_color/compressed_throttle" />-->
-
-  <!--Spawn the ASV Model based on the URDF Loaded onto the parameter server-->
-
-  <!--<node name="gps_to_odom" pkg="gps_common" type="utm_odometry_node">
-  <param name="rot_covariance" value="99999" />
-  <param name="frame_id" value="odom_combined" />
-  <param name="child_frame_id" value="base_link" />
+  <!--Joint And Robot State Publishers to give TF of all links-->
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+  	<param name="use_tf_static" value="false" />
   </node>
 
-  <node name="robot_pose_ekf" pkg="robot_pose_ekf" type="robot_pose_ekf">
-    <param name="freq" value="100.0" />
-    <param name="odom_used" value="true" />
-    <param name="imu_used" value="true" />
-  </node>-->
+  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
+
+  <node name="linear_filter" pkg="asv_localization" type="filter.py" output="screen" />
+
+	<!--<node name="slam" pkg="hector_mapping" type="hector_mapping" respawn="true">
+		<rosparam command="load" file="$(find asv_localization)/config/slam.yaml" />
+	</node>-->
+
+	<node name="vel_splitter" pkg="asv_controls" type="split_vel.py" />
+
+	<include file="$(find asv_controls)/launch/pid.launch" />
+
+	<node name="pwm_generator" pkg="asv_controls" type="create_pwm.py" />
 
 </launch>

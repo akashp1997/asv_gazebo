@@ -6,6 +6,7 @@
 #include <ros/callback_queue.h>
 #include <ros/subscribe_options.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float64.h>
 
 #include <ros/ros.h>
 #include <boost/thread.hpp>
@@ -15,6 +16,7 @@
 #include <gazebo/transport/TransportTypes.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
+#include <gazebo/math/gzmath.hh>
 
 namespace gazebo 
 {
@@ -48,28 +50,10 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   // Get the world name.
   this->world_ = _model->GetWorld();
 
-  this->left_twist_msg_.linear.x = 0;
-  this->left_twist_msg_.linear.y = 0;
-  this->left_twist_msg_.linear.z = 0;
-  this->left_twist_msg_.angular.x = 0;
-  this->left_twist_msg_.angular.y = 0;
-  this->left_twist_msg_.angular.z = 0;
-  
-  this->right_twist_msg_.linear.x = 0;
-  this->right_twist_msg_.linear.y = 0;
-  this->right_twist_msg_.linear.z = 0;
-  this->right_twist_msg_.angular.x = 0;
-  this->right_twist_msg_.angular.y = 0;
-  this->right_twist_msg_.angular.z = 0;
-  
-  this->twist_msg_.linear.x = 0;
-  this->twist_msg_.linear.y = 0;
-  this->twist_msg_.linear.z = 0;
-  this->twist_msg_.angular.x = 0;
-  this->twist_msg_.angular.y = 0;
-  this->twist_msg_.angular.z = 0;
-
   this->model_ = _model;
+
+  this->left_msg_ = 1500;
+  this->right_msg_ = 1500;
 
   // load parameters
   this->robot_namespace_ = "";
@@ -112,11 +96,11 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
 
   // Custom Callback Queue
-  ros::SubscribeOptions so_left = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+  ros::SubscribeOptions so_left = ros::SubscribeOptions::create<std_msgs::Float64>(
     this->left_topic_name_,1,
     boost::bind(&gazebo::GazeboThrusterController::UpdateObjectLeftAccel,this,_1),
     ros::VoidPtr(), &this->queue_);
-  ros::SubscribeOptions so_right = ros::SubscribeOptions::create<geometry_msgs::Twist>(
+  ros::SubscribeOptions so_right = ros::SubscribeOptions::create<std_msgs::Float64>(
     this->right_topic_name_,1,
     boost::bind(&gazebo::GazeboThrusterController::UpdateObjectRightAccel,this,_1),
     ros::VoidPtr(), &this->queue_);
@@ -135,39 +119,15 @@ void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-public: void UpdateObjectLeftAccel(const geometry_msgs::Twist::ConstPtr& _msg)
+public: void UpdateObjectLeftAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Left");
-  this->left_twist_msg_.linear.x = _msg->linear.x;
-  this->left_twist_msg_.linear.y = _msg->linear.y;
-  this->left_twist_msg_.linear.z = _msg->linear.z;
-  this->left_twist_msg_.angular.x = _msg->angular.x;
-  this->left_twist_msg_.angular.y = _msg->angular.y;
-  this->left_twist_msg_.angular.z = _msg->angular.z;
-  this->twist_msg_.linear.x = this->left_twist_msg_.linear.x+this->right_twist_msg_.linear.x;
-  this->twist_msg_.linear.y = this->left_twist_msg_.linear.y + this->right_twist_msg_.linear.y;
-  this->twist_msg_.linear.z = this->left_twist_msg_.linear.z + this->right_twist_msg_.linear.z;
-  this->twist_msg_.angular.x = this->left_twist_msg_.angular.x + this->right_twist_msg_.angular.x;
-  this->twist_msg_.angular.y = this->left_twist_msg_.angular.y + this->right_twist_msg_.angular.y;
-  this->twist_msg_.angular.z = this->left_twist_msg_.angular.z + this->right_twist_msg_.angular.z;
-
+  this->left_msg_ = _msg->data;
 }
-public: void UpdateObjectRightAccel(const geometry_msgs::Twist::ConstPtr& _msg)
+public: void UpdateObjectRightAccel(const std_msgs::Float64::ConstPtr& _msg)
 {
   //ROS_INFO("Right");
-  this->right_twist_msg_.linear.x = _msg->linear.x;
-  this->right_twist_msg_.linear.y = _msg->linear.y;
-  this->right_twist_msg_.linear.z = _msg->linear.z;
-  this->right_twist_msg_.angular.x = _msg->angular.x;
-  this->right_twist_msg_.angular.y = _msg->angular.y;
-  this->right_twist_msg_.angular.z = _msg->angular.z;
-  this->twist_msg_.linear.x = this->left_twist_msg_.linear.x+this->right_twist_msg_.linear.x;
-  this->twist_msg_.linear.y = this->left_twist_msg_.linear.y + this->right_twist_msg_.linear.y;
-  this->twist_msg_.linear.z = this->left_twist_msg_.linear.z + this->right_twist_msg_.linear.z;
-  this->twist_msg_.angular.x = this->left_twist_msg_.angular.x + this->right_twist_msg_.angular.x;
-  this->twist_msg_.angular.y = this->left_twist_msg_.angular.y + this->right_twist_msg_.angular.y;
-  this->twist_msg_.angular.z = this->left_twist_msg_.angular.z + this->right_twist_msg_.angular.z;
-
+  this->right_msg_ = _msg->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,10 +135,51 @@ public: void UpdateObjectRightAccel(const geometry_msgs::Twist::ConstPtr& _msg)
 public: void UpdateChild()
 {
   this->lock_.lock();
-  ignition::math::Vector3d linear(this->twist_msg_.linear.x,this->twist_msg_.linear.y,this->twist_msg_.linear.z);
-  ignition::math::Vector3d angular(this->twist_msg_.angular.x,this->twist_msg_.angular.y,this->twist_msg_.angular.z);
-  this->link_->SetForce(linear);
-  this->link_->SetTorque(angular);
+  this->link_->ResetPhysicsStates();
+  double force_left, force_right;
+  //The Idea is to calculate Resultant Forces in global frame by calculating and generating transforms.
+  //Then convert these global frame forces to the frame of the world by calculating their components in respective axis.
+  //The idea for torque is already there, as torque is global in nature.
+  double max_forward = 400;
+  double max_backward = 320;
+  if(this->left_msg_<1500) {
+    force_left = max_backward*(this->left_msg_-1500)/400;
+  }
+  else {
+    force_left = max_forward*(this->left_msg_-1500)/400;
+  }
+  force_left = force_left>max_forward?max_forward:force_left;
+  force_left = force_left<-max_backward?-max_backward:force_left;
+
+  if(this->right_msg_<1500) {
+    force_right = max_backward*(this->right_msg_-1500)/400;
+  }
+  else {
+    force_right = max_forward*(this->right_msg_-1500)/400;    
+  }
+  force_right = force_right>max_forward?max_forward:force_right;
+  force_right = force_right<-max_backward?-max_backward:force_right;
+  //ROS_INFO("%f %f", force_left, force_right);
+  ignition::math::Vector3d linear1(force_left,0,0);
+  ignition::math::Vector3d linear2(force_right,0,0);
+  //Correct for the 3DOF which are unrequired
+  //ignition::math::Vector3d ang(0,0,this->link_->GetWorldAngularVel()[2]);
+  ignition::math::Vector3d lin1(-0.1,-0.3,-0.1);
+  ignition::math::Vector3d lin2(-0.1,0.3,-0.1);
+
+  ignition::math::Vector3d force = linear1+linear2;
+  ignition::math::Vector3d torque = linear1.Cross(lin1)+linear2.Cross(lin2);
+  //ROS_INFO("%f", torque[2]);
+  //ignition::math::Vector3d newtorque(torque[2], torque[1], torque[0]);
+  //ROS_INFO("%.2f %.2f %.2f | %.2f %.2f %.2f", force[0], force[1], force[2], torque[0], torque[1], torque[2]);
+  //ROS_INFO("%f", ang[0]);
+  //this->link_->SetWorldTwist(lin, ang);
+  //Works on Set and Add functions
+
+  //These functions work good. However, the force here is relative to world frame and needs to be converted to local boat frame.
+  this->link_->AddRelativeForce(force);
+  this->link_->AddTorque(torque);  
+  //this->link_->AddTorqueAtRelativePosition(angular, lin);
   this->lock_.unlock();
 }
 
@@ -225,9 +226,8 @@ private: void QueueThread()
   /// \brief Thead object for the running callback Thread.
   private: boost::thread callback_queue_thread_;
   /// \brief Container for the wrench force that this plugin exerts on the body.
-  private: geometry_msgs::Twist left_twist_msg_;
-  private: geometry_msgs::Twist right_twist_msg_;
-  private: geometry_msgs::Twist twist_msg_;
+  private: int left_msg_;
+  private: int right_msg_;
 
   // Pointer to the update event connection
   private: event::ConnectionPtr update_connection_;
