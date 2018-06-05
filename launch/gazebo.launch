@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 	<!-- roslaunch arguments -->
-  <arg name="paused" default="false"/>
-  <arg name="debug" default="false"/>
-  <arg name="gui" default="true"/>
-  <arg name="urdf_path" default="$(find asv_gazebo)/urdf/gazebo.xacro"/>
-  <arg name="host" default="192.168.0.100"/>
+  <arg name="paused" default="false" />
+  <arg name="debug" default="false" />
+  <arg name="gui" default="true" />
+  <arg name="urdf_path" default="$(find asv_gazebo)/urdf/gazebo.xacro" />
+  <arg name="host" default="192.168.0.100" />
 
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -14,31 +14,14 @@
     <arg name="gui" value="$(arg gui)" />
     <arg name="use_sim_time" value="true" />
     <arg name="headless" value="false" />
+    <arg name="world_name" value="$(find asv_gazebo)/worlds/empty.world" />
   </include>
 
-  <!-- Load the URDF into the ROS Parameter Server -->
-  <param name="robot_description" command="$(find xacro)/xacro '$(find asv_gazebo)/urdf/gazebo.xacro' --inorder" />
-
-  <node name="asv_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-physics ode -urdf -model asv -param robot_description"/>
-
-  <!--Joint And Robot State Publishers to give TF of all links-->
-  
+  <param command="$(find xacro)/xacro $(find asv_gazebo)/urdf/gazebo.xacro --inorder" name="robot_description" />
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-  	<param name="use_tf_static" value="false" />
+    <param name="use_tf_static" value="false" />
   </node>
 
-  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
-
-  <node name="linear_filter" pkg="asv_localization" type="filter.py" output="screen" />
-
-	<!--<node name="slam" pkg="hector_mapping" type="hector_mapping" respawn="true">
-		<rosparam command="load" file="$(find asv_localization)/config/slam.yaml" />
-	</node>-->
-
-	<node name="vel_splitter" pkg="asv_controls" type="split_vel.py" />
-
-	<include file="$(find asv_controls)/launch/pid.launch" />
-
-	<node name="pwm_generator" pkg="asv_controls" type="create_pwm.py" />
+  <node name="asv_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-physics ode -urdf -model asv -param robot_description" />
 
 </launch>
