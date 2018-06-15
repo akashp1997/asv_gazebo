@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <robot name="sensors" xmlns:xacro="http://www.ros.org/wiki/xacro">
 	<sensor name="lidar" type="laser" update_rate="50">
-		<parent link="base_link"/>
+		<parent link="lidar"/>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
 		<update_rate>50</update_rate>
 	</sensor>
-	<gazebo reference="base_link">
+	<gazebo reference="lidar">
 		<sensor name="lmssick" type="ray">s
 			<ray>
 				<scan>
@@ -34,17 +34,17 @@
 			</ray>
 			<plugin filename="libgazebo_ros_laser.so" name="lidar">
 				<topicName>/scan</topicName>
-				<frameName>base_link</frameName>
+				<frameName>lidar</frameName>
       			<visualize>true</visualize>
 			</plugin>
 		</sensor>
 	</gazebo>
 
-	<!--<sensor name="camera" type="camera" update_rate="30">
-		<parent link="base_link"/>
+	<sensor name="camera" type="camera" update_rate="30">
+		<parent link="lidar"/>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
 	</sensor>
-	<gazebo reference="base_link">
+	<gazebo reference="lidar">
 		<sensor name="camera1" type="camera">
 			<camera name="cam_head">
 				<horizontal_fov>1.0708</horizontal_fov>
@@ -64,11 +64,11 @@
 				</noise>
 			</camera>
 			<plugin filename="libgazebo_ros_camera.so" name="camera_controller">
-				<robotNamespace>asv</robotNamespace>
+				<robotNamespace>/</robotNamespace>
 				<cameraName>camera</cameraName>
 				<imageTopicName>image_raw</imageTopicName>
 				<cameraInfoTopicName>camera_info</cameraInfoTopicName>
-				<frameName>camera</frameName>
+				<frameName>lidar</frameName>
 				<hackBaseline>0.07</hackBaseline>
 				<distortionK1>0.0</distortionK1>
 				<distortionK2>0.0</distortionK2>
@@ -77,25 +77,14 @@
 				<distortionT2>0.0</distortionT2>
 			</plugin>
 		</sensor>
-	</gazebo>-->
+	</gazebo>
 	
 	<gazebo>
-			<plugin filename="libhector_gazebo_ros_imu.so" name="imu_plugin">
+			<plugin filename="libgazebo_ros_imu.so" name="imu_plugin">
 				<updateRate>20</updateRate>
 				<bodyName>base_link</bodyName>
 				<topicName>imu_data</topicName>
-				<accelOffset>0 0 0</accelOffset>
-				<accelDrift>0 0 0</accelDrift>
-				<accelDriftFrequency>0 0 0</accelDriftFrequency>
-				<rateOffset>0 0 0</rateOffset>
-				<rateDrift>0 0 0</rateDrift>
-				<rateDriftFrequency>0 0 0</rateDriftFrequency>
-				<rateGuassianNoise>0 0 0</rateGuassianNoise>
-				<yawOffset>0</yawOffset>
-				<yawDrift>0</yawDrift>
-				<yawDriftFrequency>0</yawDriftFrequency>
-				<yawGaussianNoise>0.000</yawGaussianNoise>
-				<gaussianNoise>0.000</gaussianNoise>
+				<gaussianNoise>0.0001</gaussianNoise>
 				<rpyOffset>0 0 0</rpyOffset>
 				<xyzOffset>0 0 0</xyzOffset>
 			</plugin>
@@ -105,8 +94,21 @@
 			<plugin filename="libhector_gazebo_ros_gps.so" name="gps_sim">
 				<updateRate>10</updateRate>
 				<bodyName>base_link</bodyName>
-				<topicName>/fix</topicName>
-				<velocityTopicName>/vel</velocityTopicName>
+				<topicName>/boat_fix</topicName>
+				<velocityTopicName>/boat_vel</velocityTopicName>
+				<drift>0 0 0</drift>
+				<gaussianNoise>0.000 0.000 0.000</gaussianNoise>
+				<velocityDrift>0 0 0</velocityDrift>
+				<velocityGaussianNoise>0 0 0</velocityGaussianNoise>
+			</plugin>
+	</gazebo>
+
+	<gazebo>
+			<plugin filename="libhector_gazebo_ros_gps.so" name="gps_base">
+				<updateRate>10</updateRate>
+				<bodyName>base_link</bodyName>
+				<topicName>/base_fix</topicName>
+				<velocityTopicName>/base_vel</velocityTopicName>
 				<drift>0 0 0</drift>
 				<gaussianNoise>0.000 0.000 0.000</gaussianNoise>
 				<velocityDrift>0 0 0</velocityDrift>

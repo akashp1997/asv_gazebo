@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <model name="pond">
+      <link name="pond">
+        <collision name="collision">
+          <pose>4 4 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1 1 2</size>
+            </box>
+          </geometry>
+        <!--<contact_coefficients mu="0.1" kp="0.2" kd="0.5" />-->
+        </collision>
+        <visual name="visual">
+          <pose>4 4 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1 1 2</size>
+            </box>
+          </geometry>
+        </visual>
+        <inertial>
+          <pose>4 4 0 0 0 0</pose>
+        </inertial>
+      </link>
+    </model>
+  </world>
+</sdf>
