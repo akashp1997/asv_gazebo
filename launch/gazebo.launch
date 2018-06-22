@@ -3,7 +3,7 @@
 	<!-- roslaunch arguments -->
   <arg name="paused" default="false" />
   <arg name="debug" default="false" />
-  <arg name="gui" default="false" />
+  <arg name="gui" default="true" />
   <arg name="urdf_path" default="$(find asv_gazebo)/urdf/gazebo.xacro" />
   <arg name="host" default="192.168.0.100" />
 
@@ -13,7 +13,7 @@
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="use_sim_time" value="true" />
-    <arg name="headless" value="true" />
+    <arg name="headless" value="false" />
     <arg name="world_name" value="$(find asv_gazebo)/worlds/empty.world" />
   </include>
 

@@ -11,9 +11,9 @@
 				<scan>
 					<horizontal>
 						<samples>540</samples>
-						<resolution>0.5</resolution>
-						<min_angle>-${3*PI/4}</min_angle>
-						<max_angle>${3*PI/4}</max_angle></horizontal>
+						<resolution>0.2</resolution>
+						<min_angle>-${PI/2}</min_angle>
+						<max_angle>${PI/2}</max_angle></horizontal>
 					<vertical>
 						<samples>1</samples>
 						<resolution>1</resolution>
